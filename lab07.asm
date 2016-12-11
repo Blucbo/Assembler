@@ -4,82 +4,80 @@
 
 .MODEL small
 .Stack 100h
-Datas segment 
+Data segment 
 ;a>b	a dw 5 ;a dw 5
 ;a>b	b dw 2 ;b dw 10
 ; a<b	a dw -9
 ; a<b	b dw 3
-	a dw -2
-	b dw -2
+	a dw -9
+	b dw -3
 	x dw ? 
 	h dw ?
 	xm dw ?
 	mess db 'Error! Division by zero.$'
-Datas ends
+Data ends
 
-Codes segment 
-	Assume cs:Codes, ds:Datas
-First:	mov ax, Datas
+Code segment 
+	Assume cs:Code, ds:Data
+begin:	
+	mov ax, Data
 	mov ds, ax
-	mov ax, a;
-	cmp ax, b;
-	jg @greater
-	jl @less
-	;a==b x = -a 
+	mov ax, a	; a -> ax
+	cmp ax, b	; ?(a == b)
+	jg @op1		; if a > b	
+	jl @op2		; if a < b
+	;a == b x = -a 
 	xor ax, ax
 	mov ax, a
 	sub ax, 0001b
 	xor ax, 0FFFFh
 	mov x, ax
-	jmp @otv
+	jmp @answ
 
 	
-@greater: ;a>b (a * a - b) / a
-	xor ax, ax
-	mov ax, a
-	cmp ax, 0
-	je @err
-	mov ax, a
-	mul a
-	sub ax, b
-	
-	
+@op1:	;a>b (a * a - b) / a
+	xor ax, ax	; clean ax
+	mov ax, a	; a -> ax	
+	cmp ax, 0   ; ?(a == 0)
+	je @err		; if a == 0 
+	mul a		; a * a -> ax
+	sub ax, b	; a*a - b	
 	cwd
-	idiv a
-	mov x, ax
-	jmp @otv
-
+	idiv a		; (a*a - b) / a
+	mov x, ax	; ax -> x
+	jmp @answ	
 	
-	;x = (a-b)/a
-@less:	xor ax, ax ;a<b (a * b - 1) / b
-	mov ax, b
-	cmp ax, 0
-	je @err
-	mov ax, a
-	mul b
-	sbb ax, 1
+@op2:	;a<b (a * b - 1) / b
+	xor ax, ax	; clean ax 
+	mov ax, b	; b -> ax
+	cmp ax, 0	; ?(a == 0)
+	je @err		; if a == 0
+	mul a		; b * a -> ax
+	sbb ax, 1	; a * d - 1 -> ax
 	cwd
-	idiv b
-	mov x, ax
-	jmp @otv
+	idiv b		; (a * b - 1) / b -> ax
+	mov x, ax	; ax -> x
+	jmp @answ
 
-@otv:	
-	xor ax, ax
-	mov ax, x
-	push ax
-	cmp ax, 0
-	jns @plus ;если знак плюс (знаковый (старший) бит результата равен 0)
+@answ:	
+	xor ax, ax	; clean ax
+	mov ax, x	; x -> ax
+	push ax		; 
+	cmp ax, 0	;  ?(x == 0)
+	jns @plus	;  if x > 0 если знак плюс (знаковый (старший) бит результата равен 0)
 
-	mov dl, '-'
+	mov dl, '-' 
 	mov ah, 02h
 	int 21h
-	pop ax
+	pop ax 
 	neg ax
 
-@plus:	xor cx, cx
-	mov bx, 10
+@plus:	
+	xor cx, cx	; clean cx
+	mov bx, 10	
 
-@dvsn:	xor dx, dx
+@dvsn:	
+	xor dx, dx
 	div bx
 	push dx
 	inc cx
@@ -87,20 +85,23 @@ First:	mov ax, Datas
 	jnz short @dvsn ;если нет нуля
 	mov ah, 02h
 
-@vivod: pop dx
+@printDispl: 
+	pop dx
 	add dl, 30h ; +30
 	int 21h
-	loop @vivod
+	loop @printDispl
 	jmp @end
 
-@err:	mov dx, offset mess
+@err:	
+	mov dx, offset mess
 	mov ah, 09h
 	int 21h
 
-@end:	mov ax, 4c00h
+@end:	
+	mov ax, 4c00h
 	int 21h
-Codes ends
-end First 
+Code ends
+end begin 
  
  
  
