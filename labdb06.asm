@@ -16,23 +16,23 @@ begin:
 	mov ds, ax
 	mov al, a
 	cbw
-	mul a ; a*a -> ax
-	mov a, al  ;error operand types do nt match
-	mov al, d ;error operand types do nt match
-	sub al, a ;error operand types do nt match
-	sub ax, 1 ; d - a*a - 1 -> ax
-	mov result,al ;error operand types do nt match
+	mul a ; a*a -> al
+	mov a, al  ;
+	mov al, d ;
+	sub al, a ;
+	sub al, 1 ; d - a*a - 1 -> al
+	mov result,al ;
 		
-	mov al, c ; c -> ax
+	mov al, c ; c -> al
 	div d ; c/d -> al
-	mul q ; (c/d)*2 -> ax
+	mul q ; (c/d)*2 -> al
 	;mov ax, ax
-	add al, 2 ; (c/d)*2+2 -> ax
+	add al, 2 ; (c/d)*2+2 -> al
 	cwd 
-	div result ; ax ((c/d)*2+2) / result = (d - a*a - 1) -> ax
+	div result ; al ((c/d)*2+2) / result = (d - a*a - 1) -> al
 	cbw
-	mov result, al ; ax -> result
-	mov al, a ;error operand types do nt match
+	mov result, al ; al -> result
+	
 	mov AH, 4Ch 
 	int 21h 
 	
