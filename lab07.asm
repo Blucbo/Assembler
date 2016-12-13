@@ -62,7 +62,7 @@ begin:
 @answ:	
 	xor ax, ax	; clean ax
 	mov ax, x	; x -> ax
-	push ax		; 
+	push ax		; write stack
 	cmp ax, 0	;  ?(x == 0)
 	jns @plus	;  if x > 0 если знак плюс (знаковый (старший) бит результата равен 0)
 
